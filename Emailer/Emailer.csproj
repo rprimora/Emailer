@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <NeutralLanguage>en</NeutralLanguage>
-    <Description>A ASP.NET Core service that uses razor views to send emails.</Description>
+    <Description>An ASP.NET Core service that uses razor views to send emails.</Description>
     <PackageIconUrl>https://i.imgur.com/zprf5Jm.png</PackageIconUrl>
     <PackageTags>email smtpclient asp.net.core</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,7 +12,8 @@
     <Authors>Robert Primorac</Authors>
     <PackageLicenseUrl>https://opensource.org/licenses/Apache-2.0</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
+    <RepositoryUrl>https://github.com/rprimora/Emailer</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
