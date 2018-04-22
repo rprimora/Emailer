@@ -32,7 +32,7 @@ Pass an `Action<EmailOptions>` to the method that adds this service:
 
     services.AddEmail(options => 
     {
-    	options.Port = 587;
+    	   options.Port = 587;
         options.Host = "smtp.gmail.com";
         options.EnableSsl = true;
         options.Timeout = 10000;
