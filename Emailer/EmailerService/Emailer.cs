@@ -46,7 +46,7 @@ namespace Emailer
         /// <returns>An awaitable <see cref="Task"/>.</returns>
         public async Task SendEmailAsync<TModel>(TModel model) where TModel : EmailModel
         {
-            var body = await m_serviceProvider.GetService<IViewToStringRenderer>().RenderViewToString(model.EmailView, model);
+            var body = await m_serviceProvider.GetService<IViewToStringRenderer>().RenderViewToStringAsync(model.EmailView, model);
             
             MailMessage mailMessage = new MailMessage(string.IsNullOrEmpty(m_options.Sender) ? m_options.Username : m_options.Sender, model.To)
             {
@@ -68,7 +68,7 @@ namespace Emailer
         /// <returns>An awaitable <see cref="Task"/>.</returns>
         public async Task SendEmailAsync<TModel>(Func<SmtpClient> client, TModel model) where TModel : EmailModel
         {
-            var body = await m_serviceProvider.GetService<IViewToStringRenderer>().RenderViewToString(model.EmailView, model);
+            var body = await m_serviceProvider.GetService<IViewToStringRenderer>().RenderViewToStringAsync(model.EmailView, model);
 
             MailMessage mailMessage = new MailMessage(string.IsNullOrEmpty(m_options.Sender) ? m_options.Username : m_options.Sender, model.To)
             {
