@@ -8,28 +8,11 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Emailer
 {
-    /// <summary>
-    /// Describes an interface to view render service.
-    /// </summary>
-    public interface IViewToStringRenderer
-    {
-        /// <summary>
-        /// When implemented renders a given view to string.
-        /// </summary>
-        /// <typeparam name="TModel">View model type.</typeparam>
-        /// <param name="name">View name.</param>
-        /// <param name="model">Model.</param>
-        /// <returns>String representation of the view.</returns>
-        Task<string> RenderViewToString<TModel>(string name, TModel model);
-    }
-
     /// <summary>
     /// Represents a view renderer that can output a view in to a string.
     /// </summary>
@@ -63,13 +46,13 @@ namespace Emailer
         #region IViewToStringRenderer implementation
 
         /// <summary>
-        /// Renders a view to string.
+        /// Asynchronoulsy renders a view to string.
         /// </summary>
         /// <typeparam name="TModel">View model type.</typeparam>
         /// <param name="name">View name.</param>
         /// <param name="model">Model.</param>
         /// <returns>String representation of the view.</returns>
-        public async Task<string> RenderViewToString<TModel>(string name, TModel model)
+        public async Task<string> RenderViewToStringAsync<TModel>(string name, TModel model)
         {
             var actionContext = GetActionContext();
 
@@ -135,82 +118,5 @@ namespace Emailer
             services.AddTransient<IViewToStringRenderer, ViewToStringRenderer>();
             return services;
         }
-    }
-
-    /// <summary>
-    /// Options used to instantiate <see cref="ViewLocationExpander"/>.
-    /// </summary>
-    public class ViewToStringRendererOptions
-    {
-        /// <summary>
-        /// Gets or sets the content root path.
-        /// </summary>
-        public string ContentRoot { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the folder that contains email views. Default is 'Emails'.
-        /// </summary>
-        public string EmailsFolder { get; set; } = "Emails";
-    }
-
-    /// <summary>
-    /// Represents a view location expander that the razor engine uses to determine the location of the view.
-    /// </summary>
-    public class ViewLocationExpander : IViewLocationExpander
-    {
-        #region Members
-
-        private IEnumerable<string> m_directoryLocations;
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="ViewLocationExpander"/> class.
-        /// </summary>
-        /// <param name="options">Options.</param>
-        public ViewLocationExpander(ViewToStringRendererOptions options)
-        {
-            var root = Directory.GetCurrentDirectory();
-            // Find all 'Emails' folders in the directory
-            m_directoryLocations = Directory.GetDirectories(root, options.EmailsFolder, SearchOption.AllDirectories);
-            // Only include the ones in the running directory, remove the root path (the view engine uses relative paths)
-            // and append the file name
-            m_directoryLocations = m_directoryLocations.Where(s => s.Contains(options.ContentRoot))
-                                                    .Select(s => s.Replace(root, ""))
-                                                    .Select(s => s.Insert(s.Length, "/{0}.cshtml"));
-
-        }
-
-        #endregion
-
-        #region IViewLocationExpander implementation
-        
-        /// <summary>
-        /// Invoked by a <see cref="Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine"/> to determine potential
-        /// locations for a view.
-        /// </summary>
-        /// <param name="context">The <see cref="Microsoft.AspNetCore.Mvc.Razor.ViewLocationExpanderContext"/> for the current view location expansion operation.</param>
-        /// <param name="viewLocations">The sequence of view locations to expand.</param>
-        /// <returns>A list of expanded view locations.</returns>
-        public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
-        {
-            return m_directoryLocations.Union(viewLocations);
-        }
-
-        /// <summary>
-        /// Invoked by a <see cref="Microsoft.AspNetCore.Mvc.Razor.RazorViewEngine"/> to determine the
-        /// values that would be consumed by this instance of <see cref="Microsoft.AspNetCore.Mvc.Razor.IViewLocationExpander"/>.
-        /// The calculated values are used to determine if the view location has changed
-        /// since the last time it was located.
-        /// </summary>
-        /// <param name="context">The <see cref="Microsoft.AspNetCore.Mvc.Razor.ViewLocationExpanderContext"/> for the current view location expansion operation.</param>
-        public void PopulateValues(ViewLocationExpanderContext context)
-        {
-            context.Values["customviewlocation"] = nameof(ViewLocationExpander);
-        }
-
-        #endregion
     }
 }

@@ -10,36 +10,13 @@ using Microsoft.Extensions.Configuration;
 namespace Emailer
 {
     /// <summary>
-    /// Describes an email service used to send emails.
-    /// </summary>
-    public interface IEmail
-    {
-        /// <summary>
-        /// Asynchronously sends an email.
-        /// </summary>
-        /// <typeparam name="TModel">Type of model.</typeparam>
-        /// <param name="model">Model.</param>
-        /// <returns>An awaitable <see cref="Task"/>.</returns>
-        Task SendEmailAsync<TModel>(TModel model) where TModel: EmailModel;
-
-        /// <summary>
-        /// Asynchronously sends an email.
-        /// </summary>
-        /// <param name="client">Function that returns <see cref="SmtpClient"/>.</param>
-        /// <typeparam name="TModel">Type of model.</typeparam>
-        /// <param name="model">Model.</param>
-        /// <returns>An awaitable <see cref="Task"/>.</returns>
-        Task SendEmailAsync<TModel>(Func<SmtpClient> client, TModel model) where TModel : EmailModel;
-    }
-
-    /// <summary>
     /// Email service.
     /// </summary>
-    public class Email : IEmail
+    public class Emailer : IEmailer
     {
         #region Members
 
-        private EmailOptions m_options;
+        private EmailerOptions m_options;
         private IServiceProvider m_serviceProvider;
 
         #endregion
@@ -47,11 +24,11 @@ namespace Emailer
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Email"/> class.
+        /// Initializes a new instance of <see cref="Emailer"/> class.
         /// </summary>
         /// <param name="serviceProvider">Service provider.</param>
         /// <param name="options">Options.</param>
-        public Email(IServiceProvider serviceProvider, IOptions<EmailOptions> options)
+        public Emailer(IServiceProvider serviceProvider, IOptions<EmailerOptions> options)
         {
             m_serviceProvider = serviceProvider;
             m_options = options.Value;
@@ -129,77 +106,36 @@ namespace Emailer
     }
 
     /// <summary>
-    /// Contains extension methods for <see cref="Email"/>.
+    /// Contains extension methods for <see cref="Emailer"/>.
     /// </summary>
     public static class EmailExtension
     {
         /// <summary>
-        /// Adds <see cref="IEmail"/> service to the service collection.
+        /// Adds <see cref="IEmailer"/> service to the service collection.
         /// </summary>
         /// <param name="services">Service collection.</param>
         /// <param name="options">Options for <see cref="IEmail"/> service.</param>
         /// <returns><see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddEmail(this IServiceCollection services, Action<EmailOptions> options)
+        public static IServiceCollection AddEmail(this IServiceCollection services, Action<EmailerOptions> options)
         {
             services.Configure(options);
-            services.AddTransient<IEmail, Email>();
+            services.AddTransient<IEmailer, Emailer>();
             return services;
         }
 
         /// <summary>
-        /// Adds <see cref="IEmail"/> service to the service collection. This method assumes you have added configuration in the appsettings.json.
+        /// Adds <see cref="IEmailer"/> service to the service collection. This method assumes you have added configuration in the appsettings.json.
         /// </summary>
         /// <param name="services">Service collection.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns><see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddEmail(this IServiceCollection services, IConfiguration configuration)
         {
-            EmailOptions options = new EmailOptions();
-            Action<EmailOptions> configureOptions = (o) => configuration.GetSection("SmtpSettings").Bind(o);
+            EmailerOptions options = new EmailerOptions();
+            Action<EmailerOptions> configureOptions = (o) => configuration.GetSection("SmtpSettings").Bind(o);
             services.Configure(configureOptions);
-            services.AddTransient<IEmail, Email>();
+            services.AddTransient<IEmailer, Emailer>();
             return services;
         }
-    }
-
-    /// <summary>
-    /// Options used to instantiate <see cref="SmtpClient"/>.
-    /// </summary>
-    public class EmailOptions
-    {
-        /// <summary>
-        /// Gets or sets the port number.
-        /// </summary>
-        public int Port { get; set; }
-
-        /// <summary>
-        /// Gets or sets the host.
-        /// </summary>
-        public string Host { get; set; }
-
-        /// <summary>
-        /// Gets or sets the username of email account.
-        /// </summary>
-        public string Username { get; set; }
-
-        /// <summary>
-        /// Gets or sets the password of email account.
-        /// </summary>
-        public string Password { get; set; }
-
-        /// <summary>
-        /// Gets or sets a bool value indicating whether SSL is enabled.
-        /// </summary>
-        public bool EnableSsl { get; set; }
-
-        /// <summary>
-        /// Gets or sets the timeout. Default is 10000(10s).
-        /// </summary>
-        public int Timeout { get; set; } = 10000;
-
-        /// <summary>
-        /// Gets or sets the mail address of the sender.
-        /// </summary>
-        public string Sender { get; set; }
     }
 }
