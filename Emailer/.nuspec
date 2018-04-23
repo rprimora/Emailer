@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<package  xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+<package  xmlns="http://schemas.microsoft.com/packaging/2013/07/nuspec.xsd">
   <metadata>
     <id>emailer</id>
     <version>1.0.3</version>
     <title>Emailer</title>
     <authors>Robert Primorac</authors>
     <owners>Robert Primorac</owners>
-    <licenseUrl></licenseUrl>
+    <licenseUrl>https://opensource.org/licenses/Apache-2.0</licenseUrl>
     <projectUrl></projectUrl>
     <iconUrl>https://imgur.com/zprf5Jm</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -20,6 +20,6 @@
     <summary>An ASP.NET Core service that uses razor views to send emails.</summary>
   </metadata>
   <files>
-    <file src="readme.md" target="" />
+    <file src="" target="" />
   </files>
 </package>

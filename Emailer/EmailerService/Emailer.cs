@@ -116,7 +116,7 @@ namespace Emailer
         /// <param name="services">Service collection.</param>
         /// <param name="options">Options for <see cref="IEmail"/> service.</param>
         /// <returns><see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddEmail(this IServiceCollection services, Action<EmailerOptions> options)
+        public static IServiceCollection AddEmailer(this IServiceCollection services, Action<EmailerOptions> options)
         {
             services.Configure(options);
             services.AddTransient<IEmailer, Emailer>();
@@ -129,7 +129,7 @@ namespace Emailer
         /// <param name="services">Service collection.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns><see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddEmail(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddEmailer(this IServiceCollection services, IConfiguration configuration)
         {
             EmailerOptions options = new EmailerOptions();
             Action<EmailerOptions> configureOptions = (o) => configuration.GetSection("SmtpSettings").Bind(o);
