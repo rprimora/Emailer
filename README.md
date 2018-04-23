@@ -7,7 +7,7 @@ Emailer is a simple service used to generate email contet from razor page and se
 
 Emailer consist of two services which must be called in this order.
  1. RazorViewToStringRenderer
- 2. Email
+ 2. Emailer
 
 ## RazorViewToStringRenderer
 
@@ -22,15 +22,15 @@ This service is responsible for rendering razor view(`*.cshtml`) to string. Serv
  - `ContentRoot` - this option is needed so the service knows where to look for views. It is obtainable via `IHostingEnvironment` interface.
  - `EmailsFolder` - this is optional. Default value is `"Emails"` and it is the folder in Views that holds all the email razor pages.
 
-## Email
+## Emailer
 
 This service is responsible for sending the previously rendered views to the recipients via email. When adding the service there are two ways to define options needed to create the `SmtpClient`.
 
 ### 1. Via options action
 
-Pass an `Action<EmailOptions>` to the method that adds this service:
+Pass an `Action<EmailerOptions>` to the method that adds this service:
 
-    services.AddEmail(options => 
+    services.AddEmailer(options => 
     {
         options.Port = 587;
         options.Host = "smtp.gmail.com";
@@ -60,13 +60,13 @@ For this to work you have to define a configuration section named `SmtpSettings`
 
 The service is than added in following manner:
 
-    services.AddEmail(configuration);
+    services.AddEmailer(configuration);
 
 ## Using the email service
 
 In order to use the email service you have to obtain it via `IServiceProvider` in following manner.
 
-    IServiceProvider.GetService<IEmail>()
+    IServiceProvider.GetService<IEmailer>()
 
 Interface describes two methods:
 
@@ -103,7 +103,7 @@ Create razor page in `Views/Emails` and name it `ActivationEmail`:
 
 Send you email by first obtaining the email service:
 
-    var emailService = HttpContext.RequestServices.GetRequiredService<IEmail>()
+    var emailService = HttpContext.RequestServices.GetRequiredService<IEmailer>()
 
 Now define your model:
 
