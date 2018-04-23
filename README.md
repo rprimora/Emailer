@@ -52,7 +52,7 @@ For this to work you have to define a configuration section named `SmtpSettings`
         "Timeout": 10000,
         "Sender": "rprimora@gmail.com",
         "Username": "rprimora@gmail.com",
-        "Password": "xtvxsuiheuyiqipc"
+        "Password": "passssssss"
       }
 
 > **Tip 1**: Default value of `Timeout` is 10000 and if that suits you you do not have to pass it.
