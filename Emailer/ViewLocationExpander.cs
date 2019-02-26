@@ -31,7 +31,7 @@ namespace Emailer
             // and append the file name
             m_directoryLocations = m_directoryLocations.Where(s => s.Contains(options.ContentRoot))
                                                     .Select(s => s.Replace(root, ""))
-                                                    .Select(s => s.Insert(s.Length, "/{0}.cshtml"));
+                                                    .Select(s => s.Insert(s.Length, "\\{0}.cshtml"));
 
         }
 

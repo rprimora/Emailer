@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace Emailer
         private readonly IRazorViewEngine m_razorViewEngine;
         private readonly ITempDataProvider m_tempDataProvider;
         private readonly IServiceProvider m_serviceProvider;
+        private readonly ViewToStringRendererOptions m_options;
 
         #endregion
 
@@ -34,11 +36,12 @@ namespace Emailer
         /// <param name="razorViewEngine">Razor view engine.</param>
         /// <param name="tempDataProvider">Temporary data provider.</param>
         /// <param name="serviceProvider">Service provider.</param>
-        public ViewToStringRenderer(IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider, IServiceProvider serviceProvider)
+        public ViewToStringRenderer(IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider, IServiceProvider serviceProvider, IOptions<ViewToStringRendererOptions> options)
         {
             m_razorViewEngine = razorViewEngine;
             m_tempDataProvider = tempDataProvider;
             m_serviceProvider = serviceProvider;
+            m_options = options.Value;
         }
 
         #endregion
@@ -59,7 +62,11 @@ namespace Emailer
             var viewEngineResult = m_razorViewEngine.FindView(actionContext, name, false);
 
             if (!viewEngineResult.Success)
-                throw new InvalidOperationException(string.Format("Couldn't find view '{0}'", name));
+            {
+                viewEngineResult = m_razorViewEngine.GetView("~/", $"Views/{m_options.EmailsFolder}/{name}.cshtml", false);
+                if(!viewEngineResult.Success)
+                    throw new InvalidOperationException(string.Format("Couldn't find view '{0}'", name));
+            }
 
             var view = viewEngineResult.View;
 
@@ -115,6 +122,7 @@ namespace Emailer
             ViewToStringRendererOptions viewToStringrendererOptions = new ViewToStringRendererOptions();
             options(viewToStringrendererOptions);
             services.Configure<RazorViewEngineOptions>(o => o.ViewLocationExpanders.Add(new ViewLocationExpander(viewToStringrendererOptions)));
+            services.Configure(options);
             services.AddTransient<IViewToStringRenderer, ViewToStringRenderer>();
             return services;
         }
