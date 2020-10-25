@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <PackageIcon></PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
     <Copyright>Copyright © 2020</Copyright>
-    <Version>1.0.6</Version>
+    <Version>1.0.7</Version>
     <Authors>Robert Primorac</Authors>
     <Product>SendGrid emailer</Product>
     <Description>An ASP.NET Core service that uses razor views to send emails via SendGrid.</Description>
@@ -14,6 +14,9 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/rprimora/Emailer</RepositoryUrl>
+    <AssemblyVersion>1.0.7.0</AssemblyVersion>
+    <FileVersion>1.0.7.0</FileVersion>
+    <PackageProjectUrl>https://github.com/rprimora/Emailer</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +30,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Emailer.Abstractions\Emailer.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Users\robert\Desktop\1\icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
