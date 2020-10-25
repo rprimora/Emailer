@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>1.0.6</Version>
+    <Authors>Robert Primorac</Authors>
+    <Product>Emailer abstractions</Product>
+    <Description>Abstractions for Emailer.</Description>
+    <Copyright>Copyright © 2020</Copyright>
+    <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/rprimora/Emailer</RepositoryUrl>
+    <NeutralLanguage>English</NeutralLanguage>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+</Project>

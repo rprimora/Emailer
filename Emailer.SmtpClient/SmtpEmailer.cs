@@ -1,23 +1,26 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using System.Net.Mail;
-using System.Net;
-using Microsoft.Extensions.Options;
-using System.Text;
+﻿using Emailer.Abstractions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using System;
+using System.Net;
+using System.Net.Mail;
+using System.Text;
+using System.Threading.Tasks;
+using ViewRenderer.Abstractions;
 
-namespace Emailer
+namespace Emailer.SmtpClient
 {
     /// <summary>
     /// Email service.
     /// </summary>
-    public class Emailer : IEmailer
+    public class SmtpEmailer : IEmailer
     {
         #region Members
 
-        private EmailerOptions m_options;
-        private IServiceProvider m_serviceProvider;
+        private readonly SmtpOptions m_options;
+        private readonly IServiceProvider m_serviceProvider;
 
         #endregion
 
@@ -28,7 +31,7 @@ namespace Emailer
         /// </summary>
         /// <param name="serviceProvider">Service provider.</param>
         /// <param name="options">Options.</param>
-        public Emailer(IServiceProvider serviceProvider, IOptions<EmailerOptions> options)
+        public SmtpEmailer(IServiceProvider serviceProvider, IOptions<SmtpOptions> options)
         {
             m_serviceProvider = serviceProvider;
             m_options = options.Value;
@@ -47,8 +50,10 @@ namespace Emailer
         public async Task SendEmailAsync<TModel>(TModel model) where TModel : EmailModel
         {
             var body = await m_serviceProvider.GetService<IViewToStringRenderer>().RenderViewToStringAsync(model.EmailView, model);
-            
-            MailMessage mailMessage = new MailMessage(string.IsNullOrEmpty(m_options.Sender) ? m_options.Username : m_options.Sender, model.To)
+
+            var senderInfo = m_options.Senders["default"];
+
+            MailMessage mailMessage = new MailMessage(new MailAddress(senderInfo.Email, senderInfo.Name), new MailAddress(model.To))
             {
                 Subject = model.Subject,
                 BodyEncoding = Encoding.UTF8,
@@ -56,7 +61,7 @@ namespace Emailer
                 Body = body
             };
 
-            await GetClient().SendMailAsync(mailMessage);
+            await GetClient(senderInfo).SendMailAsync(mailMessage);
         }
 
         /// <summary>
@@ -66,11 +71,13 @@ namespace Emailer
         /// <typeparam name="TModel">Type of model.</typeparam>
         /// <param name="model">Model.</param>
         /// <returns>An awaitable <see cref="Task"/>.</returns>
-        public async Task SendEmailAsync<TModel>(Func<SmtpClient> client, TModel model) where TModel : EmailModel
+        public async Task SendEmailAsync<TModel>(TModel model, string sender) where TModel : EmailModel
         {
             var body = await m_serviceProvider.GetService<IViewToStringRenderer>().RenderViewToStringAsync(model.EmailView, model);
 
-            MailMessage mailMessage = new MailMessage(string.IsNullOrEmpty(m_options.Sender) ? m_options.Username : m_options.Sender, model.To)
+            var senderInfo = m_options.Senders[sender];
+
+            MailMessage mailMessage = new MailMessage(new MailAddress(senderInfo.Email, senderInfo.Name), new MailAddress(model.To))
             {
                 Subject = model.Subject,
                 BodyEncoding = Encoding.UTF8,
@@ -78,7 +85,7 @@ namespace Emailer
                 Body = body
             };
 
-            await client().SendMailAsync(mailMessage);
+            await GetClient(senderInfo).SendMailAsync(mailMessage);
         }
 
         #endregion
@@ -89,16 +96,16 @@ namespace Emailer
         /// Returns a <see cref="SmtpClient"/>.
         /// </summary>
         /// <returns><see cref="SmtpClient"/> object.</returns>
-        private SmtpClient GetClient()
+        private System.Net.Mail.SmtpClient GetClient(SenderInformation sender)
         {
-            return new SmtpClient()
+            return new System.Net.Mail.SmtpClient()
             {
                 Port = m_options.Port,
                 Host = m_options.Host,
                 EnableSsl = m_options.EnableSsl,
                 Timeout = m_options.Timeout,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                Credentials = new NetworkCredential(m_options.Username, m_options.Password)
+                Credentials = new NetworkCredential(sender.Email, sender.Password)
             };
         }
 
@@ -106,7 +113,7 @@ namespace Emailer
     }
 
     /// <summary>
-    /// Contains extension methods for <see cref="Emailer"/>.
+    /// Contains extension methods for <see cref="SmtpEmailer"/>.
     /// </summary>
     public static class EmailExtension
     {
@@ -114,12 +121,12 @@ namespace Emailer
         /// Adds <see cref="IEmailer"/> service to the service collection.
         /// </summary>
         /// <param name="services">Service collection.</param>
-        /// <param name="options">Options for <see cref="IEmail"/> service.</param>
+        /// <param name="options">Options for <see cref="IEmailer"/> service.</param>
         /// <returns><see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddEmailer(this IServiceCollection services, Action<EmailerOptions> options)
+        public static IServiceCollection AddSmtpEmailer(this IServiceCollection services, Action<SmtpOptions> options)
         {
             services.Configure(options);
-            services.AddTransient<IEmailer, Emailer>();
+            services.AddTransient<IEmailer, SmtpEmailer>();
             return services;
         }
 
@@ -129,12 +136,12 @@ namespace Emailer
         /// <param name="services">Service collection.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns><see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddEmailer(this IServiceCollection services, IConfiguration configuration)
-        {
-            EmailerOptions options = new EmailerOptions();
-            Action<EmailerOptions> configureOptions = (o) => configuration.GetSection("SmtpSettings").Bind(o);
-            services.Configure(configureOptions);
-            services.AddTransient<IEmailer, Emailer>();
+        public static IServiceCollection AddSmtpEmailer(this IServiceCollection services, IConfiguration configuration)
+        {            
+            SmtpOptions options = new SmtpOptions();
+            void configureOptions(SmtpOptions o) => configuration.GetSection("SmtpSettings").Bind(o);
+            services.Configure((Action<SmtpOptions>)configureOptions);
+            services.AddTransient<IEmailer, SmtpEmailer>();
             return services;
         }
     }

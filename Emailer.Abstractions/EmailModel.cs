@@ -1,12 +1,12 @@
-﻿namespace Emailer
+﻿namespace Emailer.Abstractions
 {
     /// <summary>
-    /// Represents the base model for email views.
+    /// Defines an email model.
     /// </summary>
-    public class EmailModel
+    public abstract class EmailModel
     {
         /// <summary>
-        /// Name of the view that represents the email body.
+        /// Gets or sets the name of the view that represents the email body.
         /// </summary>
         public string EmailView { get; set; }
 
